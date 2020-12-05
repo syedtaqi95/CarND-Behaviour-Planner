@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 #include "cost.h"
+#include <iostream>
+#include <limits> 
 
 using std::string;
 using std::vector;
@@ -44,14 +46,33 @@ vector<Vehicle> Vehicle::choose_next_state(map<int, vector<Vehicle>> &prediction
    *    for the state. 
    * 3. calculate_cost - Included from cost.cpp, computes the cost for a trajectory.
    *
-   * TODO: Your solution here.
+   * DONE: Your solution here.
    */
 
+  vector<string> possible_successor_states = successor_states();
+  float cost;
+  vector<float> costs;
+  vector<vector<Vehicle>> final_trajectories;
+
+  for(vector<string>::iterator state = possible_successor_states.begin(); state != possible_successor_states.end(); state++) {
+    // Generate trajectory for the state
+    vector<Vehicle> trajectory_for_state = generate_trajectory(*state, predictions);
+
+    if (trajectory_for_state.size() != 0) {
+      // Find the cost for the state based on the generated trajectory
+      float cost_for_state = calculate_cost(*this, predictions, trajectory_for_state);
+      costs.push_back(cost_for_state);
+      final_trajectories.push_back(trajectory_for_state);
+    }    
+  }
+
+  vector<float>::iterator best_cost = min_element(costs.begin(), costs.end());
+  int best_idx = distance(costs.begin(), best_cost);
 
   /**
-   * TODO: Change return value here:
+   * DONE: Change return value here:
    */
-  return generate_trajectory("KL", predictions);
+  return final_trajectories[best_idx];
 }
 
 vector<string> Vehicle::successor_states() {
